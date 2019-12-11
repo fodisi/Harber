@@ -92,15 +92,10 @@ contract Harber {
     }
 
     modifier collectAugurFunds(uint256 _tokenId) {
-    //    _collectAugurFunds(_tokenId); 
+       _collectAugurFunds(_tokenId); 
        _;
     }
 
-    /* public view functions */
-    // function getTimeHeld(uint256 _tokenId, address _adress) public view returns (uint256)
-    // {
-    //     return timeHeld[_tokenId][_address];
-    // }
 
     function getTestDai() public 
     {
@@ -235,29 +230,10 @@ contract Harber {
     }
     
     function buy(uint256 _newPrice, uint256 _tokenId, uint256 _deposit) public collectAugurFunds(_tokenId) {
-        // emit testEmit(_newPrice,price[_tokenId]);
-
-        require(_newPrice > price[_tokenId], "Price must be higher than current price");
-        require(_deposit > 0, "Must deposit something");
-        require(testDaiBalances[msg.sender] >= _deposit, "Not enough DAI");
-        
         testDaiBalances[msg.sender] = testDaiBalances[msg.sender].sub(_deposit);
         deposits[_tokenId][msg.sender] = deposits[_tokenId][msg.sender].add(_deposit);
 
         address _currentOwner = team.ownerOf(_tokenId);
-
-        if(_currentOwner == msg.sender)
-        {
-            ownerTracker[_tokenId][currentOwnerIndex[_tokenId]].price = _newPrice;
-        }
-        else
-        {
-            currentOwnerIndex[_tokenId] = currentOwnerIndex[_tokenId] + 1; 
-            // currentOwnerIndex[_tokenId] = currentOwnerIndex[_tokenId].add(1);
-            //^^ the above line causes VM errors, I need to figure out why
-            ownerTracker[_tokenId][currentOwnerIndex[_tokenId]].price = _newPrice;
-            ownerTracker[_tokenId][currentOwnerIndex[_tokenId]].owner = msg.sender; 
-        }
 
         if(state[_tokenId] == ownedState.Foreclosed) 
         {
@@ -337,28 +313,10 @@ contract Harber {
     }
 
     function _transferTokenTo(address _currentOwner, address _newOwner, uint256 _newPrice, uint256 _tokenId) internal {
-        // require(timeLastCollected[_tokenId] >= timeAcquired[_tokenId], "timeAcquired is more recent than time last connected");
-        a = timeLastCollected[_tokenId];
-        b = timeAcquired[_tokenId];
-        c = c;
-        c = c + 1;
-
-        // if (testingVariable == 0) 
-        // {
-            timeHeld[_tokenId][_currentOwner] = timeHeld[_tokenId][_currentOwner].add((timeLastCollected[_tokenId].sub(timeAcquired[_tokenId])));
-            // uint _stfu = timeLastCollected[_tokenId].sub(timeAcquired[_tokenId]);
-        // }
-        // else
-        // {
-        //     //
-        // }
         team.transferFrom(_currentOwner, _newOwner, _tokenId);
-        
         price[_tokenId] = _newPrice;
         timeAcquired[_tokenId] = now;
         owners[_tokenId][_newOwner] = true;
-
-        
     }
 }
 
